@@ -1,0 +1,11 @@
+{
+  "translations": {
+    "de": {
+      "Devices": "Geräte",
+      "device name": "Gerätename",
+      "device type": "Gerätetyp",
+      "device family": "Gerätefamilie",
+      "device number": "Gerätenummer"
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "id": "{D24A94A1-56BE-07F9-6F69-80C645DF98F4}",
+  "author": "Fonzo",
+  "name": "Shelly",
+  "url": "https://github.com/Wolbolar/IPSymconShelly",
+  "compatibility": {
+    "version": "5.0",
+    "date": 1492639200
+  },
+  "version": "0.1",
+  "build": 1,
+  "date": 1537442477
+}

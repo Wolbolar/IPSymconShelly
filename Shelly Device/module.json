@@ -1,0 +1,11 @@
+{
+    "id": "{C7FB21EB-BC3B-0304-E6DC-5BD74EA623C3}",
+    "name": "Shelly",
+    "type": 3,
+    "vendor": "Shelly",
+    "aliases": ["Shelly"],
+    "parentRequirements": [],
+    "childRequirements": [],
+    "implemented": [],
+    "prefix": "Shelly"
+}

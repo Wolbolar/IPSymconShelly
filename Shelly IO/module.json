@@ -1,0 +1,11 @@
+{
+    "id": "{33AD822D-F404-11C2-73DE-F45AC91C8125}",
+    "name": "ShellyIO",
+    "type": 1,
+    "vendor": "Shelly",
+    "aliases": ["Shelly IO"],
+    "parentRequirements": [],
+    "childRequirements": ["{724B028F-D0EA-EAF1-C281-52DEF4FB89F7}"],
+    "implemented": ["{C69B2240-4891-13C0-959E-BC856AED1158}"],
+    "prefix": "ShellyIO"
+}
