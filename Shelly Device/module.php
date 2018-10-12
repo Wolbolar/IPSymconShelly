@@ -817,6 +817,11 @@ key	string	WiFi password required for association with the device's AP
 	 */
 	public function GetDeviceState($id)
 	{
+		if($id < 1 || $id > 4)
+		{
+			$this->SendDebug(__FUNCTION__, 'ID has to be 1 -4, ' . $id . " given", 0);
+			return false;
+		}
 		$device = $id-1;
 		$command = "/relay/".$device;
 		$header = [];
@@ -846,6 +851,11 @@ key	string	WiFi password required for association with the device's AP
 	 */
 	public function PowerOn($id)
 	{
+		if($id < 1 || $id > 4)
+		{
+			$this->SendDebug(__FUNCTION__, 'ID has to be 1 -4, ' . $id . " given", 0);
+			return false;
+		}
 		$device = $id-1;
 		$command = "/relay/".$device;
 		$postfields = ['turn' => 'on'];
@@ -863,6 +873,11 @@ key	string	WiFi password required for association with the device's AP
 	 */
 	public function PowerOff($id)
 	{
+		if($id < 1 || $id > 4)
+		{
+			$this->SendDebug(__FUNCTION__, 'ID has to be 1 -4, ' . $id . " given", 0);
+			return false;
+		}
 		$device = $id-1;
 		$command = "/relay/".$device;
 		$postfields = ['turn' => 'off'];
