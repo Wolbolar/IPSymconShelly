@@ -971,32 +971,32 @@ key	string	WiFi password required for association with the device's AP
 
 	public function RequestAction($Ident, $Value)
 	{
-		if ($Ident == "STATE") {
+		if ($Ident == "STATE1") {
 			if ($Value) {
-				$this->PowerOn();
+				$this->PowerOn(1);
 			} else {
-				$this->PowerOff();
+				$this->PowerOff(1);
 			}
 		}
 		if ($Ident == "STATE2") {
 			if ($Value) {
-				$this->PowerOn_2();
+				$this->PowerOn(2);
 			} else {
-				$this->PowerOff_2();
+				$this->PowerOff(2);
 			}
 		}
 		if ($Ident == "STATE3") {
 			if ($Value) {
-				$this->PowerOn_3();
+				$this->PowerOn(3);
 			} else {
-				$this->PowerOff_3();
+				$this->PowerOff(3);
 			}
 		}
 		if ($Ident == "STATE4") {
 			if ($Value) {
-				$this->PowerOn_4();
+				$this->PowerOn(4);
 			} else {
-				$this->PowerOff_4();
+				$this->PowerOff(4);
 			}
 		}
 	}
@@ -1176,11 +1176,11 @@ key	string	WiFi password required for association with the device's AP
 			[
 				'type' => 'Button',
 				'caption' => 'On',
-				'onClick' => 'Shelly_PowerOn($id);'],
+				'onClick' => 'Shelly_PowerOn($id, 1);'],
 			[
 				'type' => 'Button',
 				'caption' => 'Off',
-				'onClick' => 'Shelly_PowerOff($id);']];
+				'onClick' => 'Shelly_PowerOff($id, 1);']];
 
 		return $form;
 	}
