@@ -871,7 +871,7 @@ key	string	WiFi password required for association with the device's AP
 		$postfields = ['turn' => 'on'];
 		$header = ['Content-Type: application/x-www-form-urlencoded'];
 		$payload = $this->SendShellyData($command, $header, $postfields);
-		$ison = $this->CheckIsOn($payload, "STATE".$device);
+		$ison = $this->CheckIsOn($payload, "STATE".$id);
 		//$this->SetUpdatePowerconsumptionOn();
 		return $ison;
 	}
@@ -893,7 +893,7 @@ key	string	WiFi password required for association with the device's AP
 		$postfields = ['turn' => 'off'];
 		$header = ['Content-Type: application/x-www-form-urlencoded'];
 		$payload = $this->SendShellyData($command, $header, $postfields);
-		$ison = $this->CheckIsOn($payload, "STATE".$device);
+		$ison = $this->CheckIsOn($payload, "STATE".$id);
 		//$this->SetUpdatePowerconsumptionOff();
 		return $ison;
 	}
