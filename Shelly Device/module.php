@@ -736,26 +736,48 @@ key	string	WiFi password required for association with the device's AP
 				$this->SetValue("MAC", $mac);
 			}
 			$relays = $shelly_data->relays;
-			$this->SendDebug(__FUNCTION__, 'Update: ' . json_encode($relays), 0);
+			$this->SendDebug(__FUNCTION__, 'Relays: ' . json_encode($relays), 0);
 			$relay_1 = $relays[0];
-			$this->SendDebug(__FUNCTION__, 'Update: ' . json_encode($relay_1), 0);
+			$this->SendDebug(__FUNCTION__, 'Relay 1: ' . json_encode($relay_1), 0);
 			$relay_2 = $relays[1];
-			$this->SendDebug(__FUNCTION__, 'Update: ' . json_encode($relay_2), 0);
+			$this->SendDebug(__FUNCTION__, 'Relay 2: ' . json_encode($relay_2), 0);
 			if($devicetype == 1 || $devicetype == 2)
 			{
 				$rollers = $shelly_data->rollers;
-				$this->SendDebug(__FUNCTION__, 'Update: ' . json_encode($rollers), 0);
+				$this->SendDebug(__FUNCTION__, 'Rollers: ' . json_encode($rollers), 0);
 				$roller = $rollers[0];
-				$this->SendDebug(__FUNCTION__, 'Update: ' . json_encode($roller), 0);
+				$this->SendDebug(__FUNCTION__, 'Roller: ' . json_encode($roller), 0);
 			}
 			$meters = $shelly_data->meters[0];
-			$this->SendDebug(__FUNCTION__, 'Update: ' . json_encode($meters), 0);
+			$this->SendDebug(__FUNCTION__, 'meter 1: ' . json_encode($meters), 0);
 			$power = $meters->power;
-			$this->SendDebug(__FUNCTION__, 'Power: ' . json_encode($power), 0);
+			$this->SendDebug(__FUNCTION__, 'Power 1: ' . json_encode($power), 0);
 			if($power_comsumption)
 			{
 				$this->SetValue("POWER_CONSUMPTION", $power);
 			}
+			if($devicetype == 3)
+			{
+				$meters_2 = $shelly_data->meters[1];
+				$this->SendDebug(__FUNCTION__, 'meter 2: ' . json_encode($meters_2), 0);
+				$power_2 = $meters_2->power;
+				$this->SendDebug(__FUNCTION__, 'Power 2: ' . json_encode($power_2), 0);
+				$meters_3 = $shelly_data->meters[2];
+				$this->SendDebug(__FUNCTION__, 'meter 3: ' . json_encode($meters_3), 0);
+				$power_3 = $meters_3->power;
+				$this->SendDebug(__FUNCTION__, 'Power 3: ' . json_encode($power_3), 0);
+				$meters_4 = $shelly_data->meters[3];
+				$this->SendDebug(__FUNCTION__, 'meter 4: ' . json_encode($meters_4), 0);
+				$power_4 = $meters_4->power;
+				$this->SendDebug(__FUNCTION__, 'Power 4: ' . json_encode($power_4), 0);
+				if($power_comsumption)
+				{
+					$this->SetValue("POWER_CONSUMPTION2", $power_2);
+					$this->SetValue("POWER_CONSUMPTION3", $power_3);
+					$this->SetValue("POWER_CONSUMPTION4", $power_4);
+				}
+			}
+
 			$is_valid = $meters->is_valid;
 			$this->SendDebug(__FUNCTION__, 'is valid: ' . json_encode($is_valid), 0);
 			if($devicetype == 3)
