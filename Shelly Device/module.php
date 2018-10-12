@@ -696,6 +696,7 @@ key	string	WiFi password required for association with the device's AP
 		$info = [];
 		$extended_information = $this->ReadPropertyBoolean("ExtendedInformation");
 		$power_comsumption = $this->ReadPropertyBoolean("PowerConsumption");
+		$devicetype = $this->GetDevicetype();
 		$http_code = $payload["http_code"];
 		if($http_code == 200)
 		{
@@ -740,10 +741,13 @@ key	string	WiFi password required for association with the device's AP
 			$this->SendDebug(__FUNCTION__, 'Update: ' . json_encode($relay_1), 0);
 			$relay_2 = $relays[1];
 			$this->SendDebug(__FUNCTION__, 'Update: ' . json_encode($relay_2), 0);
-			$rollers = $shelly_data->rollers;
-			$this->SendDebug(__FUNCTION__, 'Update: ' . json_encode($rollers), 0);
-			$roller = $rollers[0];
-			$this->SendDebug(__FUNCTION__, 'Update: ' . json_encode($roller), 0);
+			if($devicetype == 1 || $devicetype == 2)
+			{
+				$rollers = $shelly_data->rollers;
+				$this->SendDebug(__FUNCTION__, 'Update: ' . json_encode($rollers), 0);
+				$roller = $rollers[0];
+				$this->SendDebug(__FUNCTION__, 'Update: ' . json_encode($roller), 0);
+			}
 			$meters = $shelly_data->meters[0];
 			$this->SendDebug(__FUNCTION__, 'Update: ' . json_encode($meters), 0);
 			$power = $meters->power;
@@ -754,8 +758,14 @@ key	string	WiFi password required for association with the device's AP
 			}
 			$is_valid = $meters->is_valid;
 			$this->SendDebug(__FUNCTION__, 'is valid: ' . json_encode($is_valid), 0);
-			$counter = $meters->counter;
-			$this->SendDebug(__FUNCTION__, 'Counter: ' . $counter, 0);
+			if($devicetype == 3)
+			{
+				$counter = $meters->counters;
+			}
+			else{
+				$counter = $meters->counter;
+			}
+			$this->SendDebug(__FUNCTION__, 'Counter: ' . json_encode($counter), 0);
 			$ram_total = $shelly_data->ram_total;
 			$this->SendDebug(__FUNCTION__, 'RAM Total: ' . $ram_total, 0);
 			if($extended_information)
