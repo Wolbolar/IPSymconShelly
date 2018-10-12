@@ -13,6 +13,7 @@ class Shelly extends IPSModule
 
 	const STATUS_INST_DEVICETYPE_IS_EMPTY = 210; // devicetype must not be empty.
 	const STATUS_INST_HOST_IS_EMPTY = 211; // host must not be empty.
+	const STATUS_INST_HOST_WRONG = 212; // host is not valid
 
 	public function Create()
 	{
@@ -84,9 +85,21 @@ class Shelly extends IPSModule
 		$devicetype = $this->GetDevicetype();
 		if ($host == "") {
 			$this->SetStatus(self::STATUS_INST_HOST_IS_EMPTY);
-		} elseif ($devicetype == 0) {
-			$this->SetStatus(self::STATUS_INST_DEVICETYPE_IS_EMPTY);
+		}
+		//IP check
+		if (!filter_var($host, FILTER_VALIDATE_IP) === false) {
+			//IP ok
+			$ipcheck = true;
 		} else {
+			$ipcheck = false;
+			$this->SetStatus(self::STATUS_INST_HOST_WRONG);
+		}
+
+		if ($devicetype == 0) {
+			$this->SetStatus(self::STATUS_INST_DEVICETYPE_IS_EMPTY);
+		}
+		if($ipcheck)
+		{
 			$this->SetStatus(IS_ACTIVE);
 			$this->SetUpdateInterval();
 
@@ -1259,7 +1272,11 @@ key	string	WiFi password required for association with the device's AP
 			[
 				'code' => 211,
 				'icon' => 'error',
-				'caption' => 'ip adress field must not be empty.']];
+				'caption' => 'ip adress field must not be empty.'],
+			[
+				'code' => 212,
+				'icon' => 'error',
+				'caption' => 'wrong ip, please check ip and format for example 192.168.0.1']];
 
 		return $form;
 	}

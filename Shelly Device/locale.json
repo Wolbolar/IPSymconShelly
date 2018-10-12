@@ -3,6 +3,7 @@
     "de": {
       "device type": "Geräte Typ",
       "IP adress": "IP Adresse",
+      "wrong ip, please check ip and format for example 192.168.0.1": "IP Adresse ist ungültig, bitte die IP Adresse und das Format überprüfen, z.B. 192.168.0.1",
       "update interval in seconds": "Aktualisierungsintervall in Sekunden",
       "setup variables for extended info (firmware, mac etc.)": "Variablen für erweiterte Informationen anlegen (Firmware, MAC usw.)",
       "IP adress can be found in the Shelly App -> Settings -> Device Information": "Die IP Adresse kann in der Shelly App -> Settings -> Device Information gefunden werden",
