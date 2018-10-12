@@ -72,15 +72,25 @@ In IP-Symcon nun neue Instanz mit _Objekt hinzufügen -> Instanz_ (_CTRL+1_ in d
  
 **Power On**
 ```php
-Shelly_PowerOn(int $InstanceID)
+Shelly_PowerOn(int $InstanceID, int $id)
 ``` 
 Parameter _$InstanceID_ ObjektID des Shelly Devices
+Parameter _$id Nummer des Shelly Devices (1-4)
 
 **Power Off**
 ```php
-Shelly_PowerOff(int $InstanceID)
+Shelly_PowerOff(int $InstanceID, int $id)
 ``` 
 Parameter _$InstanceID_ ObjektID des Shelly Devices
+Parameter _$id Nummer des Shelly Devices (1-4)
+
+**Stromverbrauch auslesen**
+```php
+Shelly_GetPowerConsumption(int $InstanceID, int $id)
+``` 
+Parameter _$InstanceID_ ObjektID des Shelly Devices
+Parameter _$id Nummer des Shelly Devices (1-4)
+
 
 
 ### ShellySplitter:

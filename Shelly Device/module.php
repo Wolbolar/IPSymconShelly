@@ -111,8 +111,8 @@ class Shelly extends IPSModule
 
 	private function RegisterVariables()
 	{
-		$this->RegisterVariableBoolean("STATE", $this->Translate("State"), "~Switch", 1);
-		$this->EnableAction("STATE");
+		$this->RegisterVariableBoolean("STATE1", $this->Translate("State"), "~Switch", 1);
+		$this->EnableAction("STATE1");
 		$devicetype = $this->GetDevicetype();
 		if($devicetype == 2)
 		{
@@ -274,56 +274,23 @@ class Shelly extends IPSModule
 	public function UpdateStatus()
 	{
 		$this->GetState();
-		$this->GetState1();
+		$this->GetDeviceState(1);
 		$devicetype = $this->GetDevicetype();
-		if($devicetype == 2 || $devicetype == 3)
+		if($devicetype == 2)
 		{
-			$this->GetState2();
+			$this->GetDeviceState(2);
+		}
+		if($devicetype == 3)
+		{
+			$this->GetDeviceState(2);
+			$this->GetDeviceState(3);
+			$this->GetDeviceState(4);
 		}
 	}
 
 	public function UpdatePowerConsumption()
 	{
 		$this->GetState();
-	}
-
-	/** Power On
-	 * @return bool
-	 */
-	public function PowerOn()
-	{
-		$payload = $this->PowerOn_1();
-		$ison = $this->CheckIsOn($payload, "STATE");
-		//$this->SetUpdatePowerconsumptionOn();
-		return $ison;
-	}
-
-	/** Power Off
-	 * @return bool
-	 */
-	public function PowerOff()
-	{
-		$payload = $this->PowerOff_1();
-		$ison = $this->CheckIsOn($payload, "STATE");
-		//$this->SetUpdatePowerconsumptionOff();
-		return $ison;
-	}
-
-	private function CheckIsOn($payload, $ident)
-	{
-		$ison = false;
-		$http_code = $payload["http_code"];
-		if ($http_code == 200) {
-			$info = $payload["body"];
-			$shelly_data = json_decode($info);
-			$ison = $shelly_data->ison;
-			if ($ison) {
-				$this->SetValue($ident, true);
-			} else {
-				$this->SetValue($ident, false);
-			}
-		}
-		return $ison;
 	}
 
 	/** Get Info
@@ -717,6 +684,7 @@ key	string	WiFi password required for association with the device's AP
 	meters	array of hashes	Current status of the power meters
 	*/
 
+
 	/** Get State
 	 * @return array|mixed
 	 */
@@ -732,6 +700,7 @@ key	string	WiFi password required for association with the device's AP
 		if($http_code == 200)
 		{
 			$info = $payload["body"];
+			$this->SendDebug(__FUNCTION__, 'Info: ' . $info, 0);
 			$shelly_data = json_decode($info);
 			$wifi_connection = $shelly_data->wifi_sta->connected;
 			$this->SendDebug(__FUNCTION__, 'Wifi Connection: ' . $wifi_connection, 0);
@@ -841,12 +810,15 @@ key	string	WiFi password required for association with the device's AP
 		}
 	}
 
-	/** Get State 1
+
+	/** Get State
+	 * @param $id
 	 * @return array|mixed
 	 */
-	public function GetState1()
+	public function GetDeviceState($id)
 	{
-		$command = "/relay/0";
+		$device = $id-1;
+		$command = "/relay/".$device;
 		$header = [];
 		$payload = $this->SendShellyData($command, $header);
 		$info = [];
@@ -857,7 +829,7 @@ key	string	WiFi password required for association with the device's AP
 			$shelly_data = json_decode($info);
 			$ison = $shelly_data->ison;
 			$this->SendDebug(__FUNCTION__, 'State: ' . print_r($ison), 0);
-			$this->SetValue("STATE", $ison);
+			$this->SetValue("STATE".$id, $ison);
 			$has_timer = $shelly_data->has_timer;
 			$this->SendDebug(__FUNCTION__, 'has timer: ' . print_r($has_timer), 0);
 			$overpower = $shelly_data->overpower;
@@ -868,122 +840,53 @@ key	string	WiFi password required for association with the device's AP
 		return $info;
 	}
 
-	/** Get State 2
-	 * @return array|mixed
+	/** Power On
+	 * @param $id
+	 * @return bool
 	 */
-	public function GetState2()
+	public function PowerOn($id)
 	{
-		$command = "/relay/1";
-		$header = [];
-		$payload = $this->SendShellyData($command, $header);
-		$info = [];
+		$device = $id-1;
+		$command = "/relay/".$device;
+		$postfields = ['turn' => 'on'];
+		$header = ['Content-Type: application/x-www-form-urlencoded'];
+		$payload = $this->SendShellyData($command, $header, $postfields);
+		$ison = $this->CheckIsOn($payload, "STATE".$device);
+		//$this->SetUpdatePowerconsumptionOn();
+		return $ison;
+	}
+
+
+	/** Power Off
+	 * @param $id
+	 * @return bool
+	 */
+	public function PowerOff($id)
+	{
+		$device = $id-1;
+		$command = "/relay/".$device;
+		$postfields = ['turn' => 'off'];
+		$header = ['Content-Type: application/x-www-form-urlencoded'];
+		$payload = $this->SendShellyData($command, $header, $postfields);
+		$ison = $this->CheckIsOn($payload, "STATE".$device);
+		//$this->SetUpdatePowerconsumptionOff();
+		return $ison;
+	}
+
+	private function CheckIsOn($payload, $ident)
+	{
+		$ison = false;
 		$http_code = $payload["http_code"];
-		if($http_code == 200)
-		{
+		if ($http_code == 200) {
 			$info = $payload["body"];
 			$shelly_data = json_decode($info);
 			$ison = $shelly_data->ison;
-			$this->SendDebug(__FUNCTION__, 'State: ' . print_r($ison), 0);
-			$this->SetValue("STATE2", $ison);
-			$has_timer = $shelly_data->has_timer;
-			$this->SendDebug(__FUNCTION__, 'has timer: ' . print_r($has_timer), 0);
-			$overpower = $shelly_data->overpower;
-			$this->SendDebug(__FUNCTION__, 'owerpower: ' . print_r($overpower), 0);
-			$is_valid = $shelly_data->is_valid;
-			$this->SendDebug(__FUNCTION__, 'is valid: ' . print_r($is_valid), 0);
+			if ($ison) {
+				$this->SetValue($ident, true);
+			} else {
+				$this->SetValue($ident, false);
+			}
 		}
-		return $info;
-	}
-
-
-	/** Power On 1
-	 * @return array
-	 */
-	public function PowerOn_1()
-	{
-		$command = "/relay/0";
-		$postfields = ['turn' => 'on'];
-		$header = ['Content-Type: application/x-www-form-urlencoded'];
-		$payload = $this->SendShellyData($command, $header, $postfields);
-		$ison = $this->CheckIsOn($payload, "STATE");
-		//$this->SetUpdatePowerconsumptionOn();
-		return $ison;
-	}
-
-	public function PowerOff_1()
-	{
-		$command = "/relay/0";
-		$postfields = ['turn' => 'off'];
-		$header = ['Content-Type: application/x-www-form-urlencoded'];
-		$payload = $this->SendShellyData($command, $header, $postfields);
-		$ison = $this->CheckIsOn($payload, "STATE");
-		//$this->SetUpdatePowerconsumptionOff();
-		return $ison;
-	}
-
-	public function PowerOn_2()
-	{
-		$command = "/relay/1";
-		$postfields = ['turn' => 'on'];
-		$header = ['Content-Type: application/x-www-form-urlencoded'];
-		$payload = $this->SendShellyData($command, $header, $postfields);
-		$ison = $this->CheckIsOn($payload, "STATE2");
-		//$this->SetUpdatePowerconsumptionOn();
-		return $ison;
-	}
-
-	public function PowerOff_2()
-	{
-		$command = "/relay/1";
-		$postfields = ['turn' => 'off'];
-		$header = ['Content-Type: application/x-www-form-urlencoded'];
-		$payload = $this->SendShellyData($command, $header, $postfields);
-		$ison = $this->CheckIsOn($payload, "STATE2");
-		//$this->SetUpdatePowerconsumptionOff();
-		return $ison;
-	}
-
-	public function PowerOn_3()
-	{
-		$command = "/relay/2";
-		$postfields = ['turn' => 'on'];
-		$header = ['Content-Type: application/x-www-form-urlencoded'];
-		$payload = $this->SendShellyData($command, $header, $postfields);
-		$ison = $this->CheckIsOn($payload, "STATE3");
-		//$this->SetUpdatePowerconsumptionOn();
-		return $ison;
-	}
-
-	public function PowerOff_3()
-	{
-		$command = "/relay/2";
-		$postfields = ['turn' => 'off'];
-		$header = ['Content-Type: application/x-www-form-urlencoded'];
-		$payload = $this->SendShellyData($command, $header, $postfields);
-		$ison = $this->CheckIsOn($payload, "STATE3");
-		//$this->SetUpdatePowerconsumptionOff();
-		return $ison;
-	}
-
-	public function PowerOn_4()
-	{
-		$command = "/relay/3";
-		$postfields = ['turn' => 'on'];
-		$header = ['Content-Type: application/x-www-form-urlencoded'];
-		$payload = $this->SendShellyData($command, $header, $postfields);
-		$ison = $this->CheckIsOn($payload, "STATE4");
-		//$this->SetUpdatePowerconsumptionOn();
-		return $ison;
-	}
-
-	public function PowerOff_4()
-	{
-		$command = "/relay/3";
-		$postfields = ['turn' => 'off'];
-		$header = ['Content-Type: application/x-www-form-urlencoded'];
-		$payload = $this->SendShellyData($command, $header, $postfields);
-		$ison = $this->CheckIsOn($payload, "STATE4");
-		//$this->SetUpdatePowerconsumptionOff();
 		return $ison;
 	}
 
