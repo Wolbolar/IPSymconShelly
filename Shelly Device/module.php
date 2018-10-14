@@ -98,8 +98,7 @@ class Shelly extends IPSModule
 		if ($devicetype == 0) {
 			$this->SetStatus(self::STATUS_INST_DEVICETYPE_IS_EMPTY);
 		}
-		if($ipcheck)
-		{
+		if ($ipcheck) {
 			$this->SetStatus(IS_ACTIVE);
 			$this->SetUpdateInterval();
 
@@ -111,61 +110,54 @@ class Shelly extends IPSModule
 
 	private function RegisterVariables()
 	{
+		$devicetype = $this->GetDevicetype();
 		$this->RegisterVariableBoolean("STATE1", $this->Translate("State"), "~Switch", 1);
 		$this->EnableAction("STATE1");
-		$devicetype = $this->GetDevicetype();
-		if($devicetype == 2)
-		{
+		if ($devicetype == 2 || $devicetype == 3) {
 			$this->SendDebug('Register Variables', 'Shelly Switch', 0);
 			$this->RegisterVariableBoolean("STATE2", $this->Translate("State 2"), "~Switch", 3);
 			$this->EnableAction("STATE2");
 		}
-		if($devicetype == 3)
-		{
+		if ($devicetype == 3) {
 			$this->SendDebug('Register Variables', 'Shelly 4 Pro', 0);
-			$this->RegisterVariableBoolean("STATE2", $this->Translate("State 2"), "~Switch", 3);
-			$this->EnableAction("STATE2");
 			$this->RegisterVariableBoolean("STATE3", $this->Translate("State 3"), "~Switch", 5);
 			$this->EnableAction("STATE3");
 			$this->RegisterVariableBoolean("STATE4", $this->Translate("State 4"), "~Switch", 7);
 			$this->EnableAction("STATE4");
 		}
-		if($devicetype == 4)
-		{
+		if ($devicetype == 4) {
 			$this->SendDebug('Register Variables', 'Shelly Plug', 0);
 		}
-		if($devicetype == 5)
-		{
+		if ($devicetype == 5) {
 			$this->SendDebug('Register Variables', 'Shelly Bulb', 0);
 		}
-		if($devicetype == 6)
-		{
+		if ($devicetype == 6) {
 			$this->SendDebug('Register Variables', 'Shelly Sense', 0);
 		}
 		$power_comsumption = $this->ReadPropertyBoolean("PowerConsumption");
 		$extended_information = $this->ReadPropertyBoolean("ExtendedInformation");
-		if($power_comsumption)
-		{
+		if ($power_comsumption) {
 			$this->SendDebug('Register Variables', 'power consumption', 0);
-			$this->RegisterVariableFloat("POWER_CONSUMPTION", $this->Translate("Power Consumption"), "~Watt.3680", 2);
-			if($devicetype == 2)
-			{
+			if ($devicetype == 2 || $devicetype == 3) {
+				$this->RegisterVariableFloat("POWER_CONSUMPTION", $this->Translate("Power Consumption"), "~Watt.3680", 2);
 				$this->RegisterVariableFloat("POWER_CONSUMPTION2", $this->Translate("Power Consumption 2"), "~Watt.3680", 4);
 			}
-			if($devicetype == 3)
-			{
-				$this->RegisterVariableFloat("POWER_CONSUMPTION2", $this->Translate("Power Consumption 2"), "~Watt.3680", 4);
+			if ($devicetype == 3) {
 				$this->RegisterVariableFloat("POWER_CONSUMPTION3", $this->Translate("Power Consumption 3"), "~Watt.3680", 6);
 				$this->RegisterVariableFloat("POWER_CONSUMPTION4", $this->Translate("Power Consumption 4"), "~Watt.3680", 8);
 			}
-
-		}
-		else
-		{
+		} else {
 			$this->SendDebug('Unregister Variables', 'power comsumption', 0);
+			if ($devicetype == 2 || $devicetype == 3) {
+				$this->UnregisterVariable("POWER_CONSUMPTION");
+				$this->UnregisterVariable("POWER_CONSUMPTION2");
+			}
+			if ($devicetype == 3) {
+				$this->UnregisterVariable("POWER_CONSUMPTION3");
+				$this->UnregisterVariable("POWER_CONSUMPTION4");
+			}
 		}
-		if($extended_information)
-		{
+		if ($extended_information) {
 			$this->SendDebug('Register Variables', 'extended information', 0);
 			$this->RegisterVariableString("TYPE", $this->Translate("Type"), "", 10);
 			IPS_SetIcon($this->GetIDForIdent("TYPE"), "Information");
@@ -224,10 +216,16 @@ class Shelly extends IPSModule
 			$this->RegisterProfile('Shelly.RAM', 'Speedo', '', " bytes", 0, 100, 1, 0, 1);
 			$this->RegisterVariableInteger("RAM_TOTAL", $this->Translate("RAM total"), "Shelly.RAM", 16);
 			$this->RegisterVariableInteger("RAM_FREE", $this->Translate("RAM free"), "Shelly.RAM", 17);
-		}
-		else
-		{
+		} else {
 			$this->SendDebug('Unregister Variables', 'extended information', 0);
+			$this->UnregisterVariable("TYPE");
+			$this->UnregisterVariable("MAC");
+			$this->UnregisterVariable("FIRMWARE");
+			$this->UnregisterVariable("CLOUDENABLED");
+			$this->UnregisterVariable("CLOUDCONNECTED");
+			$this->UnregisterVariable("UPDATE_AVAILABLE");
+			$this->UnregisterVariable("RAM_TOTAL");
+			$this->UnregisterVariable("RAM_FREE");
 		}
 		$this->GetState();
 		$this->GetInfo();
@@ -276,12 +274,10 @@ class Shelly extends IPSModule
 		$this->GetState();
 		$this->GetDeviceState(1);
 		$devicetype = $this->GetDevicetype();
-		if($devicetype == 2)
-		{
+		if ($devicetype == 2) {
 			$this->GetDeviceState(2);
 		}
-		if($devicetype == 3)
-		{
+		if ($devicetype == 3) {
 			$this->GetDeviceState(2);
 			$this->GetDeviceState(3);
 			$this->GetDeviceState(4);
@@ -294,11 +290,11 @@ class Shelly extends IPSModule
 	}
 
 	/** Get Info
-	 *  type	string	Shelly model identifier
-	 * mac	string	MAC address of the device
-	 * auth	bool	Whether HTTP requests require authentication
-	 * fw	string	Current firmware version
-	 * num_outputs	number	Number of outputs for actuators
+	 *  type    string    Shelly model identifier
+	 * mac    string    MAC address of the device
+	 * auth    bool    Whether HTTP requests require authentication
+	 * fw    string    Current firmware version
+	 * num_outputs    number    Number of outputs for actuators
 	 * @return array
 	 */
 	public function GetInfo()
@@ -310,34 +306,29 @@ class Shelly extends IPSModule
 		$info = [];
 		$http_code = $payload["http_code"];
 		$extended_information = $this->ReadPropertyBoolean("ExtendedInformation");
-		if($http_code == 200)
-		{
+		if ($http_code == 200) {
 			$info = $payload["body"];
 			$shelly_data = json_decode($info);
 			$type = $shelly_data->type;
 			$this->SendDebug(__FUNCTION__, 'Type: ' . $type, 0);
-			if($extended_information)
-			{
+			if ($extended_information) {
 				$this->SetValue("TYPE", $type);
 			}
 			$mac = $shelly_data->mac;
 			$this->SendDebug(__FUNCTION__, 'MAC: ' . $mac, 0);
-			if($extended_information)
-			{
+			if ($extended_information) {
 				$this->SetValue("MAC", $mac);
 			}
 			$auth = $shelly_data->auth;
 			$this->SendDebug(__FUNCTION__, 'auth: ' . $auth, 0);
 			$firmware = $shelly_data->fw;
 			$this->SendDebug(__FUNCTION__, 'firmware: ' . $firmware, 0);
-			if($extended_information)
-			{
+			if ($extended_information) {
 				$this->SetValue("FIRMWARE", $firmware);
 			}
 			$num_outputs = $shelly_data->num_outputs;
 			$this->SendDebug(__FUNCTION__, 'num outputs: ' . $num_outputs, 0);
-			if($devicetype == 2 || $devicetype == 3)
-			{
+			if ($devicetype == 2 || $devicetype == 3) {
 				$num_meters = $shelly_data->num_meters;
 				$this->SendDebug(__FUNCTION__, 'num meters: ' . $num_meters, 0);
 				$num_rollers = $shelly_data->num_rollers;
@@ -628,7 +619,6 @@ key	string	WiFi password required for association with the device's AP
 	*/
 
 
-
 	/*
 	Shelly Switch: /relay/{index}
 	Shows current status of each output channel and accepts commands for controlling the channel. This is usable only when device mode is set to relay via /settings.
@@ -648,38 +638,7 @@ key	string	WiFi password required for association with the device's AP
 
 	/*
 	Shelly Switch: /status
-	GET /status
 
-	"relays": [
-	{
-		"ison": false,
-		"has_timer": false,
-		"overpower": false,
-		"is_valid": true
-	},
-	{
-		"ison": false,
-		"has_timer": false,
-		"overpower": false,
-		"is_valid": true
-	}
-	],
-	"rollers": [
-		{
-		"state": "stop",
-		"power": 0,
-		"is_valid": true,
-		"safety_switch": false,
-		"stop_reason": "normal",
-		"last_direction": "stop"
-		}
-	],
-	"meters": [
-		{
-			"power": 0,
-			"is_valid": true,
-		}
-	],
 	Shelly Switch adds information about the current state of the output channels, the logical "roller" device and power metering.
 
 	Attribute	Type	Description
@@ -702,8 +661,7 @@ key	string	WiFi password required for association with the device's AP
 		$power_comsumption = $this->ReadPropertyBoolean("PowerConsumption");
 		$devicetype = $this->GetDevicetype();
 		$http_code = $payload["http_code"];
-		if($http_code == 200)
-		{
+		if ($http_code == 200) {
 			$info = $payload["body"];
 			$this->SendDebug(__FUNCTION__, 'Info: ' . $info, 0);
 			$shelly_data = json_decode($info);
@@ -713,14 +671,12 @@ key	string	WiFi password required for association with the device's AP
 			$this->SendDebug(__FUNCTION__, 'SSID: ' . $ssid, 0);
 			$cloud_enabled = $shelly_data->cloud->enabled;
 			$this->SendDebug(__FUNCTION__, 'Cloud Enabled: ' . $cloud_enabled, 0);
-			if($extended_information)
-			{
+			if ($extended_information) {
 				$this->SetValue("CLOUDENABLED", $cloud_enabled);
 			}
 			$cloud_connected = $shelly_data->cloud->connected;
 			$this->SendDebug(__FUNCTION__, 'Cloud Connected: ' . $cloud_connected, 0);
-			if($extended_information)
-			{
+			if ($extended_information) {
 				$this->SetValue("CLOUDCONNECTED", $cloud_enabled);
 			}
 			$time = $shelly_data->time;
@@ -729,27 +685,23 @@ key	string	WiFi password required for association with the device's AP
 			$this->SendDebug(__FUNCTION__, 'Serial: ' . $serial, 0);
 			$update = $shelly_data->has_update;
 			$this->SendDebug(__FUNCTION__, 'Update: ' . $update, 0);
-			if($extended_information)
-			{
+			if ($extended_information) {
 				$this->SetValue("UPDATE_AVAILABLE", $update);
 			}
 			$mac = $shelly_data->mac;
 			$this->SendDebug(__FUNCTION__, 'MAC: ' . $mac, 0);
-			if($extended_information)
-			{
+			if ($extended_information) {
 				$this->SetValue("MAC", $mac);
 			}
 			$relays = $shelly_data->relays;
 			$this->SendDebug(__FUNCTION__, 'Relays: ' . json_encode($relays), 0);
 			$relay_1 = $relays[0];
 			$this->SendDebug(__FUNCTION__, 'Relay 1: ' . json_encode($relay_1), 0);
-			if($devicetype == 2 || $devicetype == 3)
-			{
+			if ($devicetype == 2 || $devicetype == 3) {
 				$relay_2 = $relays[1];
 				$this->SendDebug(__FUNCTION__, 'Relay 2: ' . json_encode($relay_2), 0);
 			}
-			if($devicetype == 2 || $devicetype == 3)
-			{
+			if ($devicetype == 2 || $devicetype == 3) {
 				$rollers = $shelly_data->rollers;
 				$this->SendDebug(__FUNCTION__, 'Rollers: ' . json_encode($rollers), 0);
 				$roller = $rollers[0];
@@ -758,13 +710,11 @@ key	string	WiFi password required for association with the device's AP
 				$this->SendDebug(__FUNCTION__, 'meter 1: ' . json_encode($meters), 0);
 				$power = $meters->power;
 				$this->SendDebug(__FUNCTION__, 'Power 1: ' . json_encode($power), 0);
-				if($power_comsumption)
-				{
+				if ($power_comsumption) {
 					$this->SetValue("POWER_CONSUMPTION", $power);
 				}
 			}
-			if($devicetype == 3)
-			{
+			if ($devicetype == 3) {
 				$meters_2 = $shelly_data->meters[1];
 				$this->SendDebug(__FUNCTION__, 'meter 2: ' . json_encode($meters_2), 0);
 				$power_2 = $meters_2->power;
@@ -777,37 +727,31 @@ key	string	WiFi password required for association with the device's AP
 				$this->SendDebug(__FUNCTION__, 'meter 4: ' . json_encode($meters_4), 0);
 				$power_4 = $meters_4->power;
 				$this->SendDebug(__FUNCTION__, 'Power 4: ' . json_encode($power_4), 0);
-				if($power_comsumption)
-				{
+				if ($power_comsumption) {
 					$this->SetValue("POWER_CONSUMPTION2", $power_2);
 					$this->SetValue("POWER_CONSUMPTION3", $power_3);
 					$this->SetValue("POWER_CONSUMPTION4", $power_4);
 				}
 			}
-			if($devicetype == 2 || $devicetype == 3)
-			{
+			if ($devicetype == 2 || $devicetype == 3) {
 				$is_valid = $meters->is_valid;
 				$this->SendDebug(__FUNCTION__, 'is valid: ' . json_encode($is_valid), 0);
 			}
-			if($devicetype == 3)
-			{
+			if ($devicetype == 3) {
 				$counter = $meters->counters;
 				$this->SendDebug(__FUNCTION__, 'Counter: ' . json_encode($counter), 0);
-			}
-			elseif($devicetype == 2){
+			} elseif ($devicetype == 2) {
 				$counter = $meters->counter;
 				$this->SendDebug(__FUNCTION__, 'Counter: ' . json_encode($counter), 0);
 			}
 			$ram_total = $shelly_data->ram_total;
 			$this->SendDebug(__FUNCTION__, 'RAM Total: ' . $ram_total, 0);
-			if($extended_information)
-			{
+			if ($extended_information) {
 				$this->SetValue("RAM_TOTAL", $ram_total);
 			}
 			$ram_free = $shelly_data->ram_free;
 			$this->SendDebug(__FUNCTION__, 'RAM Free: ' . $ram_free, 0);
-			if($extended_information)
-			{
+			if ($extended_information) {
 				$this->SetValue("RAM_FREE", $ram_free);
 			}
 			$uptime = $shelly_data->uptime;
@@ -819,33 +763,21 @@ key	string	WiFi password required for association with the device's AP
 	public function GetPowerConsumption($id = NULL)
 	{
 		$info = $this->GetState();
-		if(empty($info))
-		{
+		if (empty($info)) {
 			return false;
-		}
-		else
-		{
+		} else {
 			$shelly_data = json_decode($info);
 			$meters = $shelly_data->meters[0];
 			$power = $meters->power;
-			if(is_null($id))
-			{
+			if (is_null($id)) {
 				$power = $meters->power;
-			}
-			elseif($id == 1)
-			{
+			} elseif ($id == 1) {
 				$power = $meters->power;
-			}
-			elseif($id == 2)
-			{
+			} elseif ($id == 2) {
 				$power = $meters->power;
-			}
-			elseif($id == 3)
-			{
+			} elseif ($id == 3) {
 				$power = $meters->power;
-			}
-			elseif($id == 4)
-			{
+			} elseif ($id == 4) {
 				$power = $meters->power;
 			}
 			return $power;
@@ -859,24 +791,22 @@ key	string	WiFi password required for association with the device's AP
 	 */
 	public function GetDeviceState($id)
 	{
-		if($id < 1 || $id > 4)
-		{
+		if ($id < 1 || $id > 4) {
 			$this->SendDebug(__FUNCTION__, 'ID has to be 1 -4, ' . $id . " given", 0);
 			return false;
 		}
-		$device = $id-1;
-		$command = "/relay/".$device;
+		$device = $id - 1;
+		$command = "/relay/" . $device;
 		$header = [];
 		$payload = $this->SendShellyData($command, $header);
 		$info = [];
 		$http_code = $payload["http_code"];
-		if($http_code == 200)
-		{
+		if ($http_code == 200) {
 			$info = $payload["body"];
 			$shelly_data = json_decode($info);
 			$ison = $shelly_data->ison;
 			$this->SendDebug(__FUNCTION__, 'State: ' . print_r($ison), 0);
-			$this->SetValue("STATE".$id, $ison);
+			$this->SetValue("STATE" . $id, $ison);
 			$has_timer = $shelly_data->has_timer;
 			$this->SendDebug(__FUNCTION__, 'has timer: ' . print_r($has_timer), 0);
 			$overpower = $shelly_data->overpower;
@@ -893,17 +823,16 @@ key	string	WiFi password required for association with the device's AP
 	 */
 	public function PowerOn($id)
 	{
-		if($id < 1 || $id > 4)
-		{
+		if ($id < 1 || $id > 4) {
 			$this->SendDebug(__FUNCTION__, 'ID has to be 1 -4, ' . $id . " given", 0);
 			return false;
 		}
-		$device = $id-1;
-		$command = "/relay/".$device;
+		$device = $id - 1;
+		$command = "/relay/" . $device;
 		$postfields = ['turn' => 'on'];
 		$header = ['Content-Type: application/x-www-form-urlencoded'];
 		$payload = $this->SendShellyData($command, $header, $postfields);
-		$ison = $this->CheckIsOn($payload, "STATE".$id);
+		$ison = $this->CheckIsOn($payload, "STATE" . $id);
 		//$this->SetUpdatePowerconsumptionOn();
 		return $ison;
 	}
@@ -915,17 +844,16 @@ key	string	WiFi password required for association with the device's AP
 	 */
 	public function PowerOff($id)
 	{
-		if($id < 1 || $id > 4)
-		{
+		if ($id < 1 || $id > 4) {
 			$this->SendDebug(__FUNCTION__, 'ID has to be 1 -4, ' . $id . " given", 0);
 			return false;
 		}
-		$device = $id-1;
-		$command = "/relay/".$device;
+		$device = $id - 1;
+		$command = "/relay/" . $device;
 		$postfields = ['turn' => 'off'];
 		$header = ['Content-Type: application/x-www-form-urlencoded'];
 		$payload = $this->SendShellyData($command, $header, $postfields);
-		$ison = $this->CheckIsOn($payload, "STATE".$id);
+		$ison = $this->CheckIsOn($payload, "STATE" . $id);
 		//$this->SetUpdatePowerconsumptionOff();
 		return $ison;
 	}
@@ -1134,50 +1062,65 @@ key	string	WiFi password required for association with the device's AP
 			[
 				'name' => 'Host',
 				'type' => 'ValidationTextBox',
-				'caption' => 'IP adress'],
-			[
-				'type' => 'Label',
-				'caption' => 'create variables for power consumption'],
-			[
-				'name' => 'PowerConsumption',
-				'type' => 'CheckBox',
-				'caption' => 'power consumption'],
-			[
-				'type' => 'Label',
-				'caption' => 'setup variables for extended info (firmware, mac etc.)'],
-			[
-				'name' => 'ExtendedInformation',
-				'type' => 'CheckBox',
-				'caption' => 'extended information'],
-			[
-				'type' => 'Label',
-				'caption' => 'update interval (seconds)'],
-			[
-				'name' => 'UpdateInterval',
-				'type' => 'NumberSpinner',
-				'caption' => 'Seconds',
-				'suffix' => 'seconds'],
-			[
-				'name' => 'Devicetype',
-				'type' => 'Select',
-				'caption' => 'device type',
-				'options' => [
-					["caption" => "please select devicetype",
-						"value" => 0],
-					["caption" => "Shelly 1",
-						"value" => 1],
-					["caption" => "Shelly Switch",
-						"value" => 2],
-					["caption" => "Shelly 4 Pro",
-						"value" => 3],
-					["caption" => "Shelly Plug",
-						"value" => 4],
-					["caption" => "Shelly Bulb",
-						"value" => 5],
-					["caption" => "Shelly Sense",
-						"value" => 6]
-				]]
+				'caption' => 'IP adress']
 		];
+		$devicetype = $this->GetDevicetype();
+		if ($devicetype == 2 || $devicetype == 3) {
+			$form = array_merge_recursive(
+				$form,
+				[
+					[
+						'type' => 'Label',
+						'caption' => 'create variables for power consumption'],
+					[
+						'name' => 'PowerConsumption',
+						'type' => 'CheckBox',
+						'caption' => 'power consumption']
+				]
+			);
+		}
+
+		$form = array_merge_recursive(
+			$form,
+			[
+				[
+					'type' => 'Label',
+					'caption' => 'setup variables for extended info (firmware, mac etc.)'],
+				[
+					'name' => 'ExtendedInformation',
+					'type' => 'CheckBox',
+					'caption' => 'extended information'],
+				[
+					'type' => 'Label',
+					'caption' => 'update interval (seconds)'],
+				[
+					'name' => 'UpdateInterval',
+					'type' => 'NumberSpinner',
+					'caption' => 'Seconds',
+					'suffix' => 'seconds'],
+				[
+					'name' => 'Devicetype',
+					'type' => 'Select',
+					'caption' => 'device type',
+					'options' => [
+						["caption" => "please select devicetype",
+							"value" => 0],
+						["caption" => "Shelly 1",
+							"value" => 1],
+						["caption" => "Shelly Switch",
+							"value" => 2],
+						["caption" => "Shelly 4 Pro",
+							"value" => 3],
+						["caption" => "Shelly Plug",
+							"value" => 4],
+						["caption" => "Shelly Bulb",
+							"value" => 5],
+						["caption" => "Shelly Sense",
+							"value" => 6]
+					]]
+			]
+		);
+
 		return $form;
 	}
 
