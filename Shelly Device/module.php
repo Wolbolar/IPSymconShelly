@@ -684,7 +684,7 @@ key	string	WiFi password required for association with the device's AP
 	meters	array of hashes	Current status of the power meters
 	*/
 
-
+	
 	/** Get State
 	 * @return array|mixed
 	 */
@@ -739,8 +739,11 @@ key	string	WiFi password required for association with the device's AP
 			$this->SendDebug(__FUNCTION__, 'Relays: ' . json_encode($relays), 0);
 			$relay_1 = $relays[0];
 			$this->SendDebug(__FUNCTION__, 'Relay 1: ' . json_encode($relay_1), 0);
-			$relay_2 = $relays[1];
-			$this->SendDebug(__FUNCTION__, 'Relay 2: ' . json_encode($relay_2), 0);
+			if($devicetype == 2 || $devicetype == 3)
+			{
+				$relay_2 = $relays[1];
+				$this->SendDebug(__FUNCTION__, 'Relay 2: ' . json_encode($relay_2), 0);
+			}
 			if($devicetype == 1 || $devicetype == 2)
 			{
 				$rollers = $shelly_data->rollers;
@@ -748,13 +751,16 @@ key	string	WiFi password required for association with the device's AP
 				$roller = $rollers[0];
 				$this->SendDebug(__FUNCTION__, 'Roller: ' . json_encode($roller), 0);
 			}
-			$meters = $shelly_data->meters[0];
-			$this->SendDebug(__FUNCTION__, 'meter 1: ' . json_encode($meters), 0);
-			$power = $meters->power;
-			$this->SendDebug(__FUNCTION__, 'Power 1: ' . json_encode($power), 0);
-			if($power_comsumption)
+			if($devicetype == 2 || $devicetype == 3)
 			{
-				$this->SetValue("POWER_CONSUMPTION", $power);
+				$meters = $shelly_data->meters[0];
+				$this->SendDebug(__FUNCTION__, 'meter 1: ' . json_encode($meters), 0);
+				$power = $meters->power;
+				$this->SendDebug(__FUNCTION__, 'Power 1: ' . json_encode($power), 0);
+				if($power_comsumption)
+				{
+					$this->SetValue("POWER_CONSUMPTION", $power);
+				}
 			}
 			if($devicetype == 3)
 			{
