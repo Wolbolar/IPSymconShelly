@@ -780,17 +780,20 @@ key	string	WiFi password required for association with the device's AP
 					$this->SetValue("POWER_CONSUMPTION4", $power_4);
 				}
 			}
-
-			$is_valid = $meters->is_valid;
-			$this->SendDebug(__FUNCTION__, 'is valid: ' . json_encode($is_valid), 0);
+			if($devicetype == 2 || $devicetype == 3)
+			{
+				$is_valid = $meters->is_valid;
+				$this->SendDebug(__FUNCTION__, 'is valid: ' . json_encode($is_valid), 0);
+			}
 			if($devicetype == 3)
 			{
 				$counter = $meters->counters;
+				$this->SendDebug(__FUNCTION__, 'Counter: ' . json_encode($counter), 0);
 			}
-			else{
+			elseif($devicetype == 2){
 				$counter = $meters->counter;
+				$this->SendDebug(__FUNCTION__, 'Counter: ' . json_encode($counter), 0);
 			}
-			$this->SendDebug(__FUNCTION__, 'Counter: ' . json_encode($counter), 0);
 			$ram_total = $shelly_data->ram_total;
 			$this->SendDebug(__FUNCTION__, 'RAM Total: ' . $ram_total, 0);
 			if($extended_information)
@@ -1218,6 +1221,10 @@ key	string	WiFi password required for association with the device's AP
 	protected function FormStatus()
 	{
 		$form = [
+			[
+				'code' => 201,
+				'icon' => 'error',
+				'caption' => '201 error.'],
 			[
 				'code' => 210,
 				'icon' => 'error',
