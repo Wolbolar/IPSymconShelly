@@ -231,7 +231,7 @@ class Shelly extends IPSModule
 		$shelly_webinterface = $this->ReadPropertyBoolean("ShellyWebInterface");
 		if($shelly_webinterface)
 		{
-			$this->RegisterVariableString("WEBINTERFACE", $this->Translate("Webinterface"), "", 20);
+			$this->RegisterVariableString("WEBINTERFACE", $this->Translate("Webinterface"), "~HTMLBox", 20);
 			$host = $this->GetHost();
 			$webinterface = '<iframe src=\'http://'.$host.'\' height=500px width=600px>';
 			$this->SetValue("WEBINTERFACE", $webinterface);
