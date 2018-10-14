@@ -303,6 +303,7 @@ class Shelly extends IPSModule
 	 */
 	public function GetInfo()
 	{
+		$devicetype = $this->GetDevicetype();
 		$command = "/shelly";
 		$header = [];
 		$payload = $this->SendShellyData($command, $header);
@@ -335,10 +336,13 @@ class Shelly extends IPSModule
 			}
 			$num_outputs = $shelly_data->num_outputs;
 			$this->SendDebug(__FUNCTION__, 'num outputs: ' . $num_outputs, 0);
-			$num_meters = $shelly_data->num_meters;
-			$this->SendDebug(__FUNCTION__, 'num meters: ' . $num_meters, 0);
-			$num_rollers = $shelly_data->num_rollers;
-			$this->SendDebug(__FUNCTION__, 'num rollers: ' . $num_rollers, 0);
+			if($devicetype == 2 || $devicetype == 3)
+			{
+				$num_meters = $shelly_data->num_meters;
+				$this->SendDebug(__FUNCTION__, 'num meters: ' . $num_meters, 0);
+				$num_rollers = $shelly_data->num_rollers;
+				$this->SendDebug(__FUNCTION__, 'num rollers: ' . $num_rollers, 0);
+			}
 		}
 		return $info;
 	}
