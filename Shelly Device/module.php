@@ -684,7 +684,7 @@ key	string	WiFi password required for association with the device's AP
 	meters	array of hashes	Current status of the power meters
 	*/
 
-	
+
 	/** Get State
 	 * @return array|mixed
 	 */
@@ -744,15 +744,12 @@ key	string	WiFi password required for association with the device's AP
 				$relay_2 = $relays[1];
 				$this->SendDebug(__FUNCTION__, 'Relay 2: ' . json_encode($relay_2), 0);
 			}
-			if($devicetype == 1 || $devicetype == 2)
+			if($devicetype == 2 || $devicetype == 3)
 			{
 				$rollers = $shelly_data->rollers;
 				$this->SendDebug(__FUNCTION__, 'Rollers: ' . json_encode($rollers), 0);
 				$roller = $rollers[0];
 				$this->SendDebug(__FUNCTION__, 'Roller: ' . json_encode($roller), 0);
-			}
-			if($devicetype == 2 || $devicetype == 3)
-			{
 				$meters = $shelly_data->meters[0];
 				$this->SendDebug(__FUNCTION__, 'meter 1: ' . json_encode($meters), 0);
 				$power = $meters->power;
