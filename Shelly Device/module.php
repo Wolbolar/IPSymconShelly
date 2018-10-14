@@ -29,6 +29,7 @@ class Shelly extends IPSModule
 		$this->RegisterPropertyBoolean("MQTT", false);
 		$this->RegisterPropertyBoolean("PowerConsumption", false);
 		$this->RegisterPropertyBoolean("ExtendedInformation", false);
+		$this->RegisterPropertyBoolean("ShellyWebInterface", false);
 
 		$this->RegisterTimer('UpdateInterval', 0, 'Shelly_UpdateStatus(' . $this->InstanceID . ');');
 		$this->RegisterTimer('UpdateIntervalPowerConsumption', 0, 'Shelly_UpdatePowerConsumption(' . $this->InstanceID . ');');
@@ -226,6 +227,18 @@ class Shelly extends IPSModule
 			$this->UnregisterVariable("UPDATE_AVAILABLE");
 			$this->UnregisterVariable("RAM_TOTAL");
 			$this->UnregisterVariable("RAM_FREE");
+		}
+		$shelly_webinterface = $this->ReadPropertyBoolean("ShellyWebInterface");
+		if($shelly_webinterface)
+		{
+			$this->RegisterVariableString("WEBINTERFACE", $this->Translate("Webinterface"), "", 20);
+			$host = $this->GetHost();
+			$webinterface = '<iframe src=\'http://'.$host.'\' height=500px width=600px>';
+			$this->SetValue("WEBINTERFACE", $webinterface);
+		}
+		else
+		{
+			$this->UnregisterVariable("WEBINTERFACE");
 		}
 		$this->GetState();
 		$this->GetInfo();
@@ -1062,7 +1075,14 @@ key	string	WiFi password required for association with the device's AP
 			[
 				'name' => 'Host',
 				'type' => 'ValidationTextBox',
-				'caption' => 'IP adress']
+				'caption' => 'IP adress'],
+			[
+				'type' => 'Label',
+				'caption' => 'show webinterface of Shelly in the Webfront'],
+			[
+				'name' => 'ShellyWebInterface',
+				'type' => 'CheckBox',
+				'caption' => 'Shelly WebInterface']
 		];
 		$devicetype = $this->GetDevicetype();
 		if ($devicetype == 2 || $devicetype == 3) {

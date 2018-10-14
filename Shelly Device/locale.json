@@ -8,6 +8,8 @@
       "setup variables for extended info (firmware, mac etc.)": "Variablen für erweiterte Informationen anlegen (Firmware, MAC usw.)",
       "IP adress can be found in the Shelly App -> Settings -> Device Information": "Die IP Adresse kann in der Shelly App -> Settings -> Device Information gefunden werden",
       "update interval (seconds)": "Update Interval (Sekunden)",
+      "Webinterface": "Webinterface",
+      "show webinterface of Shelly in the Webfront": "Anzeige des Shelly Webinterface im Webfront",
       "seconds": "Sekunden",
       "Get State": "Status auslesen",
       "Power Consumption": "Stromverbrauch",
