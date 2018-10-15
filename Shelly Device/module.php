@@ -233,7 +233,7 @@ class Shelly extends IPSModule
 		{
 			$this->RegisterVariableString("WEBINTERFACE", $this->Translate("Webinterface"), "~HTMLBox", 20);
 			$host = $this->GetHost();
-			$webinterface = '<iframe src=\'http://'.$host.'\' height=500px width=600px>';
+			$webinterface = '<iframe src=\'http://'.$host.'\' height=500px width=100%>';
 			$this->SetValue("WEBINTERFACE", $webinterface);
 		}
 		else
@@ -714,11 +714,13 @@ key	string	WiFi password required for association with the device's AP
 				$relay_2 = $relays[1];
 				$this->SendDebug(__FUNCTION__, 'Relay 2: ' . json_encode($relay_2), 0);
 			}
-			if ($devicetype == 2 || $devicetype == 3) {
+			if ($devicetype == 2) {
 				$rollers = $shelly_data->rollers;
 				$this->SendDebug(__FUNCTION__, 'Rollers: ' . json_encode($rollers), 0);
 				$roller = $rollers[0];
 				$this->SendDebug(__FUNCTION__, 'Roller: ' . json_encode($roller), 0);
+			}
+			if ($devicetype == 2 || $devicetype == 3) {
 				$meters = $shelly_data->meters[0];
 				$this->SendDebug(__FUNCTION__, 'meter 1: ' . json_encode($meters), 0);
 				$power = $meters->power;
