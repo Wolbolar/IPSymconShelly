@@ -3,70 +3,72 @@
 
 # IPSymconShelly
 
-Modul für IP-Symcon ab Version 5.0. Ermöglicht die Steuerung von Produkten von [Shelly](https://shelly.cloud/ "Shelly") von IP-Symcon aus.
+Module for IP Symcon version 5.0 or higher. Enables control of [Shelly](https://shelly.cloud/ "Shelly")'s products from IP-Symcon.
 
-## Dokumentation
+## Documentation
 
-**Inhaltsverzeichnis**
+**Table of Contents**
 
-1. [Funktionsumfang](#1-funktionsumfang)  
-2. [Voraussetzungen](#2-voraussetzungen)  
+1. [Features](#1-features)  
+2. [Requirements](#2-requirements)  
 3. [Installation](#3-installation)  
-4. [Funktionsreferenz](#4-funktionsreferenz)  
-5. [Konfiguration](#5-konfiguration)  
-6. [Anhang](#6-anhang)  
+4. [Function reference](#4-function_reference)  
+5. [Configuration](#5-configuration) 
+6. [Annex](#5-annex)  
 
-## 1. Funktionsumfang
 
-  - Steuerung von:
+## 1. Features
+
+  - Control of:
      - Shelly 1
      - Shelly Switch
      - Shelly 4 Pro
      - Shelly Plug
      - Shelly Bulb
      - Shelly Sense     
- - Energieverbrauch Anzeige  
+ - Energy consumption display  
   
 
-## 2. Voraussetzungen
+## 2. Requirements
 
  - IPS 5.0
  - Shelly 1 / Shelly Switch / Shelly 4 Pro / Shelly Plug / Shelly Bulb / Shelly Sense
 
 ## 3. Installation
 
-### a. Laden des Moduls
+### a. Loading the module
 
-Die IP-Symcon (min [Ver. 5.0](https://www.symcon.de/forum/threads/38222-IP-Symcon-5-0-verf%C3%BCgbar "IP-Symcon 5")) Webkonsole öffnen ( *http://<IP-SYMCON IP>:3777/console/* ). Im Objektbaum unter Kerninstanzen die Instanz __*Modules*__ durch einen doppelten Mausklick öffnen.
+Open the IP Symcon (min [Ver. 5.0](https://www.symcon.de/forum/threads/38222-IP-Symcon-5-0-verf%C3%BCgbar "IP-Symcon 5")) web console (*http://<IP-SYMCON IP>:3777/console/*). In the object tree, under core instances, open the instance __*modules*__ with a double mouse click.
 
 ![Modules](img/modules.png?raw=true "Modules")
 
-In der _Modules_ Instanz rechts unten auf den Button __*+*__ drücken.
+In the _modules_ instance, press the button __*+*__ in the lower right corner.
 
 ![ModulesAdd](img/plus_add.png?raw=true "Hinzufügen")
- 
-In dem sich öffnenden Fenster folgende URL hinzufügen:
+ 
+Add the following URL in the window that opens:
 
 ```	
 https://github.com/Wolbolar/IPSymconShelly  
 ```
-    
-und mit _OK_ bestätigen.    
-    
-Anschließend erscheint ein Eintrag für das Modul in der Liste der Instanz _Modules_ 
+    
+and confirm with _OK_.
+
+    
+Then an entry for the module appears in the list of the instance _modules_
 
 
-### b. Einrichtung in IP-Symcon
+### b. Setup in IP-Symcon
 
-In IP-Symcon nun neue Instanz mit _Objekt hinzufügen -> Instanz_ (_CTRL+1_ in der Legacy Konsole) hinzufügen, und _Shelly_ auswählen.
+In IP-Symcon, add a new instance with _object -> add instance_ (_CTRL + 1_ in the Legacy Console) and select _Shelly_.
 
 
-### Webfront Ansicht
+### Webfront View
 
 
  ![Webfront](img/shelly_webfront.png?raw=true "Config IO")
 
-## 4. Funktionsreferenz
+## 4. Function reference
 
 ### Shelly Device:
  
@@ -84,7 +86,7 @@ Shelly_PowerOff(int $InstanceID, int $id)
 Parameter _$InstanceID_ ObjektID des Shelly Devices
 Parameter _$id Nummer des Shelly Devices (1-4)
 
-**Stromverbrauch auslesen**
+**Get power consumption**
 ```php
 Shelly_GetPowerConsumption(int $InstanceID, int $id)
 ``` 
@@ -97,19 +99,19 @@ Parameter _$id Nummer des Shelly Devices (1-4)
 
 
 
-## 5. Konfiguration:
+## 5. Configuration:
 
 
 ### Shelly Device:  
 
-| Eigenschaft     | Typ     | Standardwert | Funktion                                                              |
-| :-------------: | :-----: | :----------: | :-------------------------------------------------------------------: |
-| Devicetype      | string  |    -          | Typ des Geräts                                                        |
-| Host            | string  |    -          | IP Adresse                               |
-| UpdateIntervall | integer |  0            | Intervall in Sekunden, in dem die Daten vom Gerät geholt werden und die Statusvariablen aktualisiert werden       |
-| ExtendedInfo    | boolean |  false | Auswahl, ob erweiterte Statusvariablen zur Verfügung gestellt werden sollen
+| Property        | Type    | Standard value | Function                                                              |
+| :-------------: | :-----: | :------------: | :-------------------------------------------------------------------: |
+| Devicetype      | string  |    -           | Type of device                                                        |
+| Host            | string  |    -           | IP adress                               |
+| UpdateIntervall | integer |  0             | Interval in seconds at which the data is fetched from the device and the status variables are updated |
+| ExtendedInfo    | boolean |  false         | Select whether extended status variables are to be made available
 
-## 6. Anhang
+## 6. Annex
 
 
 #### Shelly Device:
