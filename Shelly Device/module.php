@@ -112,8 +112,10 @@ class Shelly extends IPSModule
 	private function RegisterVariables()
 	{
 		$devicetype = $this->GetDevicetype();
-		$this->RegisterVariableBoolean("STATE1", $this->Translate("State"), "~Switch", 1);
-		$this->EnableAction("STATE1");
+		if ($devicetype == 1 || $devicetype == 2 || $devicetype == 3 || $devicetype == 4 || $devicetype == 5) {
+			$this->RegisterVariableBoolean("STATE1", $this->Translate("State"), "~Switch", 1);
+			$this->EnableAction("STATE1");
+		}
 		if ($devicetype == 2 || $devicetype == 3) {
 			$this->SendDebug('Register Variables', 'Shelly Switch', 0);
 			$this->RegisterVariableBoolean("STATE2", $this->Translate("State 2"), "~Switch", 3);
@@ -134,6 +136,11 @@ class Shelly extends IPSModule
 		}
 		if ($devicetype == 6) {
 			$this->SendDebug('Register Variables', 'Shelly Sense', 0);
+			$this->RegisterVariableBoolean("MOTION", $this->Translate("Motion"), "~Presence", 40);
+			$this->RegisterVariableFloat("TEMPERATURE", $this->Translate("Temperature"), "~Temperature", 41 );
+			$this->RegisterVariableFloat("HUMIDITY", $this->Translate("Humidity"), "~Humidity.F", 42 );
+			$this->RegisterVariableFloat("LUX", $this->Translate("Lux"), "~Illumination.F", 43 );
+			$this->RegisterVariableFloat("BAT_LEVEL", $this->Translate("Battery Level"), "~Intensity.1", 44 );
 		}
 		$power_comsumption = $this->ReadPropertyBoolean("PowerConsumption");
 		$extended_information = $this->ReadPropertyBoolean("ExtendedInformation");
@@ -677,6 +684,10 @@ key	string	WiFi password required for association with the device's AP
 		if ($http_code == 200) {
 			$info = $payload["body"];
 			$this->SendDebug(__FUNCTION__, 'Info: ' . $info, 0);
+			if ($devicetype == 6) {
+				$this->GetStateSense($info);
+				return $info;
+			}
 			$shelly_data = json_decode($info);
 			$wifi_connection = $shelly_data->wifi_sta->connected;
 			$this->SendDebug(__FUNCTION__, 'Wifi Connection: ' . $wifi_connection, 0);
@@ -771,8 +782,27 @@ key	string	WiFi password required for association with the device's AP
 			}
 			$uptime = $shelly_data->uptime;
 			$this->SendDebug(__FUNCTION__, 'Uptime: ' . $uptime, 0);
+
+
 		}
 		return $info;
+	}
+
+	protected function GetStateSense($info)
+	{
+		$shelly_data = json_decode($info);
+		$device = $shelly_data->device;
+		$this->SendDebug(__FUNCTION__, 'device: ' . json_encode($device), 0);
+		// motion
+		//$this->SetValue("MOTION", $motion);
+		// temperature
+		//$this->SetValue("TEMPERATURE", $temperature);
+		// humidity
+		//$this->SetValue("HUMIDITY", $humidity);
+		// lux
+		//$this->SetValue("LUX", $lux);
+		// bat
+		//$this->SetValue("BAT_LEVEL", $battery);
 	}
 
 	public function GetPowerConsumption($id = NULL)
