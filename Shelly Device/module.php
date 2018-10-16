@@ -116,10 +116,16 @@ class Shelly extends IPSModule
 			$this->RegisterVariableBoolean("STATE1", $this->Translate("State"), "~Switch", 1);
 			$this->EnableAction("STATE1");
 		}
+		else{
+			$this->UnregisterVariable("STATE1");
+		}
 		if ($devicetype == 2 || $devicetype == 3) {
 			$this->SendDebug('Register Variables', 'Shelly Switch', 0);
 			$this->RegisterVariableBoolean("STATE2", $this->Translate("State 2"), "~Switch", 3);
 			$this->EnableAction("STATE2");
+		}
+		else{
+			$this->UnregisterVariable("STATE2");
 		}
 		if ($devicetype == 3) {
 			$this->SendDebug('Register Variables', 'Shelly 4 Pro', 0);
@@ -128,11 +134,63 @@ class Shelly extends IPSModule
 			$this->RegisterVariableBoolean("STATE4", $this->Translate("State 4"), "~Switch", 7);
 			$this->EnableAction("STATE4");
 		}
+		else{
+			$this->UnregisterVariable("STATE3");
+			$this->UnregisterVariable("STATE4");
+		}
 		if ($devicetype == 4) {
 			$this->SendDebug('Register Variables', 'Shelly Plug', 0);
 		}
 		if ($devicetype == 5) {
 			$this->SendDebug('Register Variables', 'Shelly Bulb', 0);
+			$this->RegisterProfileAssociation(
+				'Shelly.Colormode',
+				'Bulb',
+				'',
+				'',
+				0,
+				1,
+				0,
+				0,
+				1,
+				[
+					[0, $this->Translate('Color'), 'Bulb', -1],
+					[1, $this->Translate('Warm / Cold White'), 'Bulb', -1]
+				]
+			);
+			$this->RegisterVariableInteger("COLORMODE", $this->Translate("Color Mode"), "Shelly.Colormode", 60);
+			$this->EnableAction("COLORMODE");
+			$this->RegisterVariableInteger("COLOR", $this->Translate("Color"), "~HexColor", 61); // Color Hex, integer
+			$this->EnableAction("COLOR");
+			$this->RegisterVariableInteger("BRIGHTNESS", $this->Translate("Brightness"), "~Intensity.100", 62); // Brightness (0-100)
+			$this->EnableAction("BRIGHTNESS");
+			$this->RegisterProfileAssociation(
+				'Shelly.Effect',
+				'Bulb',
+				'',
+				'',
+				0,
+				6,
+				0,
+				0,
+				1,
+				[
+					[0, $this->Translate('Off'), 'Bulb', -1],
+					[1, $this->Translate('Meteor Shower'), 'Bulb', -1],
+					[2, $this->Translate('Gradual Change'), 'Bulb', -1],
+					[3, $this->Translate('Breath'), 'Bulb', -1],
+					[4, $this->Translate('Flash'), 'Bulb', -1],
+					[5, $this->Translate('On/Off Gradual'), 'Bulb', -1],
+					[6, $this->Translate('Red/Green Change'), 'Bulb', -1]
+				]
+			);
+			$this->RegisterVariableInteger("EFFECT", $this->Translate("Effect"), "Shelly.Effect", 63); // Shelly Effect
+			$this->EnableAction("EFFECT");
+		}
+		else{
+			$this->UnregisterVariable("COLOR");
+			$this->UnregisterVariable("BRIGHTNESS");
+			$this->UnregisterVariable("EFFECT");
 		}
 		if ($devicetype == 6) {
 			$this->SendDebug('Register Variables', 'Shelly Sense', 0);
@@ -141,6 +199,13 @@ class Shelly extends IPSModule
 			$this->RegisterVariableFloat("HUMIDITY", $this->Translate("Humidity"), "~Humidity.F", 42 );
 			$this->RegisterVariableFloat("LUX", $this->Translate("Lux"), "~Illumination.F", 43 );
 			$this->RegisterVariableFloat("BAT_LEVEL", $this->Translate("Battery Level"), "~Intensity.1", 44 );
+		}
+		else{
+			$this->UnregisterVariable("MOTION");
+			$this->UnregisterVariable("TEMPERATURE");
+			$this->UnregisterVariable("HUMIDITY");
+			$this->UnregisterVariable("LUX");
+			$this->UnregisterVariable("BAT_LEVEL");
 		}
 		$power_comsumption = $this->ReadPropertyBoolean("PowerConsumption");
 		$extended_information = $this->ReadPropertyBoolean("ExtendedInformation");
@@ -717,10 +782,12 @@ key	string	WiFi password required for association with the device's AP
 			if ($extended_information) {
 				$this->SetValue("MAC", $mac);
 			}
-			$relays = $shelly_data->relays;
-			$this->SendDebug(__FUNCTION__, 'Relays: ' . json_encode($relays), 0);
-			$relay_1 = $relays[0];
-			$this->SendDebug(__FUNCTION__, 'Relay 1: ' . json_encode($relay_1), 0);
+			if ($devicetype == 1 || $devicetype == 2 || $devicetype == 3) {
+				$relays = $shelly_data->relays;
+				$this->SendDebug(__FUNCTION__, 'Relays: ' . json_encode($relays), 0);
+				$relay_1 = $relays[0];
+				$this->SendDebug(__FUNCTION__, 'Relay 1: ' . json_encode($relay_1), 0);
+			}
 			if ($devicetype == 2 || $devicetype == 3) {
 				$relay_2 = $relays[1];
 				$this->SendDebug(__FUNCTION__, 'Relay 2: ' . json_encode($relay_2), 0);
@@ -836,12 +903,20 @@ key	string	WiFi password required for association with the device's AP
 	 */
 	public function GetDeviceState($id)
 	{
-		if ($id < 1 || $id > 4) {
-			$this->SendDebug(__FUNCTION__, 'ID has to be 1 -4, ' . $id . " given", 0);
-			return false;
+		$devicetype = $this->GetDevicetype();
+		if($devicetype == 1 || $devicetype == 2 || $devicetype == 3)
+		{
+			if ($id < 1 || $id > 4) {
+				$this->SendDebug(__FUNCTION__, 'ID has to be 1 -4, ' . $id . " given", 0);
+				return false;
+			}
+			$device = $id - 1;
+			$command = "/relay/" . $device;
 		}
-		$device = $id - 1;
-		$command = "/relay/" . $device;
+		if($devicetype == 5)
+		{
+			$command = "/settings";
+		}
 		$header = [];
 		$payload = $this->SendShellyData($command, $header);
 		$info = [];
@@ -849,15 +924,49 @@ key	string	WiFi password required for association with the device's AP
 		if ($http_code == 200) {
 			$info = $payload["body"];
 			$shelly_data = json_decode($info);
-			$ison = $shelly_data->ison;
-			$this->SendDebug(__FUNCTION__, 'State: ' . print_r($ison), 0);
-			$this->SetValue("STATE" . $id, $ison);
-			$has_timer = $shelly_data->has_timer;
-			$this->SendDebug(__FUNCTION__, 'has timer: ' . print_r($has_timer), 0);
-			$overpower = $shelly_data->overpower;
-			$this->SendDebug(__FUNCTION__, 'overpower: ' . print_r($overpower), 0);
-			$is_valid = $shelly_data->is_valid;
-			$this->SendDebug(__FUNCTION__, 'is valid: ' . print_r($is_valid), 0);
+			if($devicetype == 1 || $devicetype == 2 || $devicetype == 3)
+			{
+				$ison = $shelly_data->ison;
+				$this->SendDebug(__FUNCTION__, 'State: ' . print_r($ison), 0);
+				$this->SetValue("STATE" . $id, $ison);
+				$has_timer = $shelly_data->has_timer;
+				$this->SendDebug(__FUNCTION__, 'has timer: ' . print_r($has_timer), 0);
+				$overpower = $shelly_data->overpower;
+				$this->SendDebug(__FUNCTION__, 'overpower: ' . print_r($overpower), 0);
+				$is_valid = $shelly_data->is_valid;
+				$this->SendDebug(__FUNCTION__, 'is valid: ' . print_r($is_valid), 0);
+			}
+			if($devicetype == 5)
+			{
+				$mode = $shelly_data->mode;
+				$this->SendDebug(__FUNCTION__, 'Mode: ' . $mode, 0);
+				if($mode == "white")
+				{
+					$this->SetValue("COLORMODE", 1);
+				}
+				elseif($mode == "color")
+				{
+					$this->SetValue("COLORMODE", 0);
+				}
+				$lights = $shelly_data->lights[0];
+				$ison = $lights->ison;
+				$this->SendDebug(__FUNCTION__, 'State: ' . print_r($ison), 0);
+				$this->SetValue("STATE" . $id, $ison);
+				$red = $lights->red;
+				$this->SendDebug(__FUNCTION__, 'Red: ' . print_r($red), 0);
+				$green = $lights->green;
+				$this->SendDebug(__FUNCTION__, 'Green: ' . print_r($green), 0);
+				$blue = $lights->blue;
+				$this->SendDebug(__FUNCTION__, 'Blue: ' . print_r($blue), 0);
+				$white = $lights->white;
+				$this->SendDebug(__FUNCTION__, 'White: ' . print_r($white), 0);
+				$gain = $lights->gain;
+				$this->SendDebug(__FUNCTION__, 'Gain: ' . print_r($gain), 0);
+				$temp = $lights->temp;
+				$this->SendDebug(__FUNCTION__, 'Temp: ' . print_r($temp), 0);
+				$brightness = $lights->brightness;
+				$this->SendDebug(__FUNCTION__, 'Brightness: ' . print_r($brightness), 0);
+			}
 		}
 		return $info;
 	}
@@ -868,12 +977,20 @@ key	string	WiFi password required for association with the device's AP
 	 */
 	public function PowerOn($id)
 	{
-		if ($id < 1 || $id > 4) {
-			$this->SendDebug(__FUNCTION__, 'ID has to be 1 -4, ' . $id . " given", 0);
-			return false;
+		$devicetype = $this->GetDevicetype();
+		if($devicetype == 1 || $devicetype == 2 || $devicetype == 3)
+		{
+			if ($id < 1 || $id > 4) {
+				$this->SendDebug(__FUNCTION__, 'ID has to be 1 -4, ' . $id . " given", 0);
+				return false;
+			}
+			$device = $id - 1;
+			$command = "/relay/" . $device;
 		}
-		$device = $id - 1;
-		$command = "/relay/" . $device;
+		if($devicetype == 5)
+		{
+			$command = "/light/0";
+		}
 		$postfields = ['turn' => 'on'];
 		$header = ['Content-Type: application/x-www-form-urlencoded'];
 		$payload = $this->SendShellyData($command, $header, $postfields);
@@ -889,12 +1006,20 @@ key	string	WiFi password required for association with the device's AP
 	 */
 	public function PowerOff($id)
 	{
-		if ($id < 1 || $id > 4) {
-			$this->SendDebug(__FUNCTION__, 'ID has to be 1 -4, ' . $id . " given", 0);
-			return false;
+		$devicetype = $this->GetDevicetype();
+		if($devicetype == 1 || $devicetype == 2 || $devicetype == 3)
+		{
+			if ($id < 1 || $id > 4) {
+				$this->SendDebug(__FUNCTION__, 'ID has to be 1 -4, ' . $id . " given", 0);
+				return false;
+			}
+			$device = $id - 1;
+			$command = "/relay/" . $device;
 		}
-		$device = $id - 1;
-		$command = "/relay/" . $device;
+		if($devicetype == 5)
+		{
+			$command = "/light/0";
+		}
 		$postfields = ['turn' => 'off'];
 		$header = ['Content-Type: application/x-www-form-urlencoded'];
 		$payload = $this->SendShellyData($command, $header, $postfields);
@@ -918,6 +1043,30 @@ key	string	WiFi password required for association with the device's AP
 			}
 		}
 		return $ison;
+	}
+
+	/** Set Color Mode
+	 * @param int $colormode 0 color or 1 warm / cold white
+	 * @return array
+	 */
+	public function SetColorMode(int $colormode)
+	{
+		$command = "/settings";
+		if($colormode == 0)
+		{
+			$postfields = ['mode' => 'color'];
+		}
+		elseif($colormode == 1)
+		{
+			$postfields = ['mode' => 'white'];
+		}
+		else
+		{
+			$postfields = ['mode' => 'color'];
+		}
+		$header = ['Content-Type: application/x-www-form-urlencoded'];
+		$payload = $this->SendShellyData($command, $header, $postfields);
+		return $payload;
 	}
 
 
@@ -1002,6 +1151,13 @@ key	string	WiFi password required for association with the device's AP
 				$this->PowerOn(4);
 			} else {
 				$this->PowerOff(4);
+			}
+		}
+		if ($Ident == "COLORMODE") {
+			if ($Value == 0) {
+				$this->SetColorMode(0);
+			} elseif($Value == 1) {
+				$this->SetColorMode(1);
 			}
 		}
 	}
