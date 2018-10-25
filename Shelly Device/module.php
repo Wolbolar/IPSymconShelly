@@ -929,12 +929,21 @@ key	string	WiFi password required for association with the device's AP
 				$ison = $shelly_data->ison;
 				$this->SendDebug(__FUNCTION__, 'State: ' . print_r($ison), 0);
 				$this->SetValue("STATE" . $id, $ison);
-				$has_timer = $shelly_data->has_timer;
-				$this->SendDebug(__FUNCTION__, 'has timer: ' . print_r($has_timer), 0);
-				$overpower = $shelly_data->overpower;
-				$this->SendDebug(__FUNCTION__, 'overpower: ' . print_r($overpower), 0);
-				$is_valid = $shelly_data->is_valid;
-				$this->SendDebug(__FUNCTION__, 'is valid: ' . print_r($is_valid), 0);
+				if(property_exists($shelly_data, 'has_timer'))
+				{
+					$has_timer = $shelly_data->has_timer;
+					$this->SendDebug(__FUNCTION__, 'has timer: ' . print_r($has_timer), 0);
+				}
+				if(property_exists($shelly_data, 'overpower'))
+				{
+					$overpower = $shelly_data->overpower;
+					$this->SendDebug(__FUNCTION__, 'overpower: ' . print_r($overpower), 0);
+				}
+				if(property_exists($shelly_data, 'is_valid'))
+				{
+					$is_valid = $shelly_data->is_valid;
+					$this->SendDebug(__FUNCTION__, 'is valid: ' . print_r($is_valid), 0);
+				}
 			}
 			if($devicetype == 5)
 			{
